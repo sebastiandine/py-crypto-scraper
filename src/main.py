@@ -26,7 +26,7 @@ db_port = int(os.getenv('DB_PORT'))
 db_name = os.getenv('DB_NAME')
 
 engine = sqlalchemy.create_engine('{0}://{1}:{2}@{3}:{4}/{5}'.format(db_protocol, db_user, db_pw, db_host, db_port, db_name))
-
+print("Service started ...")
 while True:
     iteration_start = int(time())
     feeScrapeFunction = [scrape_bsc_gas, scrape_eth_gas, scrape_btc_fee]
