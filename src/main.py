@@ -12,20 +12,23 @@ from time import sleep, time
 import sqlalchemy
 import os
 
+# setup selenium driver
 driver_options = Options()
 driver_options.add_argument('-headless')
 geckodriver_service = Service("/tmp/geckodriver")
 driver = webdriver.Firefox(options=driver_options, service=geckodriver_service)
 driver.set_page_load_timeout(30)
 
+# setup database connection
 db_protocol = os.getenv('DB_PROTOCOL')
 db_user = os.getenv('DB_USER')
 db_pw = os.getenv('DB_PW')
 db_host = os.getenv('DB_HOST')
 db_port = int(os.getenv('DB_PORT'))
 db_name = os.getenv('DB_NAME')
-
 engine = sqlalchemy.create_engine('{0}://{1}:{2}@{3}:{4}/{5}'.format(db_protocol, db_user, db_pw, db_host, db_port, db_name))
+
+# start scraping
 print("Service started ...")
 while True:
     iteration_start = int(time())
