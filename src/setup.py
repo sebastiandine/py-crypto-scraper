@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-   name='Crypto Scraping',
+   name='Py-Crypto-Scraping',
    version='1.0',
    install_requires=[
       'beautifulsoup4>=4.12.2',
