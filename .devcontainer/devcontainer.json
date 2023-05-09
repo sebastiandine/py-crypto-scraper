@@ -1,0 +1,26 @@
+{
+    "name": "Python Trading Dev Environment",
+    "dockerFile": "Dockerfile",
+
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "bash"
+                    }
+                },
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "notebook.markup.fontSize": 14
+            },
+            "extensions": [
+                "ms-python.python",
+                "alexcvzz.vscode-sqlite"
+            ]
+        }
+    },
+
+    "remoteUser": "dev",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/dev/workspace/${localWorkspaceFolderBasename},type=bind",
+    "workspaceFolder": "/home/dev/workspace/${localWorkspaceFolderBasename}"
+}
