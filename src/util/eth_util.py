@@ -4,17 +4,17 @@ from bs4 import BeautifulSoup
 from time import time 
 from selenium.webdriver.remote.webdriver import BaseWebDriver
 
-def json_to_df(json: str) -> pd.DataFrame:
+def _data_to_df(data: dict) -> pd.DataFrame:
     """
-    Convert scraped JSON to a comparable Pandas Datatype
+    Convert scraped data to a comparable Pandas Datatype
     """
-    df = pd.DataFrame([json])                                                                                               # create df from JSON document
+    df = pd.DataFrame([data])                                                                                               # create df from JSON document
     df = df.loc[:,['symbol', 'timestamp', 'lowGwei', 'avgGwei', 'highGwei', 'lowDuration', 'avgDuration', 'highDuration']]  # filter df for relevant columns
     df.columns = ['Symbol', 'Timestamp', 'slowFee', 'avgFee', 'fastFee', 'slowDuration', 'avgDuration', 'fastDuration']     # rename columns
     df.Timestamp = pd.to_datetime(df.Timestamp, unit='s')                                                                   # change column datatype
     return df
 
-def parse_eth_price_duration(text:str) -> Tuple[float,int] :
+def _parse_eth_price_duration(text:str) -> Tuple[float,int] :
     """
     Parse price and transaction duration from a string of schema: "$1.53 | ~ 3 mins: 0 secs".
 
@@ -29,7 +29,7 @@ def parse_eth_price_duration(text:str) -> Tuple[float,int] :
 
     return(usd, dur_min+dur_sec)
 
-def scrape_eth_gas(driver: BaseWebDriver):
+def scrape_eth_gas(driver: BaseWebDriver) -> pd.DataFrame:
     """
     Scrape the current gas information from `https://etherscan.io/gastracker`.
 
@@ -51,16 +51,16 @@ def scrape_eth_gas(driver: BaseWebDriver):
     divLowPrice = soup.find("div", {"id": "divLowPrice"})
     data["lowGwei"] = int(divLowPrice.find("span", {"id": "ContentPlaceHolder1_ltGasPrice"}).text)
     divLowUsdDur = divLowPrice.find_all("div", {"class": "text-muted"})
-    data["lowUsd"], data["lowDuration"] = parse_eth_price_duration(divLowUsdDur[1].text)
+    data["lowUsd"], data["lowDuration"] = _parse_eth_price_duration(divLowUsdDur[1].text)
 
     divAvgPrice = soup.find("div", {"id": "divAvgPrice"})
     data["avgGwei"] = int(divAvgPrice.find("span", {"id": "spanAvgPrice"}).text)
     divAvgUsdDur = divAvgPrice.find_all("div", {"class": "text-muted"})
-    data["avgUsd"], data["avgDuration"] = parse_eth_price_duration(divAvgUsdDur[1].text)
+    data["avgUsd"], data["avgDuration"] = _parse_eth_price_duration(divAvgUsdDur[1].text)
 
     divHighPrice = soup.find("div", {"id": "divHighPrice"})
     data["highGwei"] = int(divHighPrice.find("span", {"id": "spanHighPrice"}).text)
     divHighUsdDur = divHighPrice.find_all("div", {"class": "text-muted"})
-    data["highUsd"], data["highDuration"] = parse_eth_price_duration(divHighUsdDur[1].text)
+    data["highUsd"], data["highDuration"] = _parse_eth_price_duration(divHighUsdDur[1].text)
 
-    return json_to_df(data)
+    return _data_to_df(data)

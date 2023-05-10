@@ -3,17 +3,17 @@ import pandas as pd
 from time import time 
 from selenium.webdriver.remote.webdriver import BaseWebDriver
 
-def json_to_df(json: str) -> pd.DataFrame:
+def _data_to_df(data: dict) -> pd.DataFrame:
     """
-    Convert scraped JSON to a comparable Pandas Datatype
+    Convert scraped data to a comparable Pandas Datatype
     """
-    df = pd.DataFrame([json])                                                                                               # create df from JSON document
+    df = pd.DataFrame([data])                                                                                               # create df from JSON document
     df = df.loc[:,['symbol', 'timestamp', 'lowGwei', 'avgGwei', 'highGwei', 'lowDuration', 'avgDuration', 'highDuration']]  # filter df for relevant columns
     df.columns = ['Symbol', 'Timestamp', 'slowFee', 'avgFee', 'fastFee', 'slowDuration', 'avgDuration', 'fastDuration']     # rename columns
     df.Timestamp = pd.to_datetime(df.Timestamp, unit='s')                                                                   # change column datatype
     return df
 
-def parse_bsc_duration(text:str) -> int :
+def _parse_bsc_duration(text: str) -> int :
     """
     Parse transaction duration from a string of schema: "(5-10 secs)", by calculating the median value.
 
@@ -24,7 +24,7 @@ def parse_bsc_duration(text:str) -> int :
 
     return (int((dur_high + dur_low) /2))
 
-def scrape_bsc_gas(driver: BaseWebDriver):
+def scrape_bsc_gas(driver: BaseWebDriver) -> pd.DataFrame:
     """
     Scrape the current gas information from `https://bscscan.com/gastracker`.
 
@@ -48,8 +48,8 @@ def scrape_bsc_gas(driver: BaseWebDriver):
     data["highGwei"] = int(divGasDataPanel[0].find("span", {"id": "rapidgas"}).text.replace(" Gwei", ""))
 
     durations = divGasDataPanel[0].find_all("div", {"class": "text-secondary"})
-    data["lowDuration"] = parse_bsc_duration(durations[0].text)
-    data["avgDuration"] = parse_bsc_duration(durations[1].text)
-    data["highDuration"] = parse_bsc_duration(durations[2].text)
+    data["lowDuration"] = _parse_bsc_duration(durations[0].text)
+    data["avgDuration"] = _parse_bsc_duration(durations[1].text)
+    data["highDuration"] = _parse_bsc_duration(durations[2].text)
 
-    return json_to_df(data)
+    return _data_to_df(data)

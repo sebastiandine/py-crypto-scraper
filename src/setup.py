@@ -11,6 +11,7 @@ setup(
       'python-binance>=1.0.17',
       'sqlalchemy>=2.0.12',
       'psycopg2>=2.9.6',
-      'cryptography>=40.0.2'
+      'cryptography>=40.0.2',
+      'python-dotenv>=1.0.0'
       ]
 )

@@ -3,17 +3,17 @@ import pandas as pd
 from time import time 
 from selenium.webdriver.remote.webdriver import BaseWebDriver
 
-def json_to_df(json: str) -> pd.DataFrame:
+def _data_to_df(data: dict) -> pd.DataFrame:
     """
-    Convert scraped JSON to a comparable Pandas Datatype
+    Convert scraped data to a comparable Pandas Datatype
     """
-    df = pd.DataFrame([json])                                                                                               # create df from JSON document
+    df = pd.DataFrame([data])                                                                                               # create df from JSON document
     df = df.loc[:,['symbol', 'timestamp', 'lowSat', 'avgSat', 'highSat', 'lowDuration', 'avgDuration', 'highDuration']]     # filter df for relevant columns
     df.columns = ['Symbol', 'Timestamp', 'slowFee', 'avgFee', 'fastFee', 'slowDuration', 'avgDuration', 'fastDuration']     # rename columns
     df.Timestamp = pd.to_datetime(df.Timestamp, unit='s')                                                                   # change column datatype
     return df
 
-def parse_btc_duration(text:str) -> int:
+def _parse_btc_duration(text: str) -> int:
     """
     Parse transaction duration from a string of schema: 
     "Next Block Fee: fee to have your transaction mined on the next block (10 minutes)."
@@ -30,7 +30,7 @@ def parse_btc_duration(text:str) -> int:
     if "hour" in text_trimmed:
         return (int(text_trimmed.replace(" hour", "")) * 3600)
 
-def scrape_btc_fee(driver: BaseWebDriver):
+def scrape_btc_fee(driver: BaseWebDriver) -> pd.DataFrame:
     """
     Scrape the current gas information from `https://privacypros.io/tools/bitcoin-fee-estimator/`.
 
@@ -52,8 +52,8 @@ def scrape_btc_fee(driver: BaseWebDriver):
     data["lowSat"] = int(fee_data[2].text.replace("S/B", ""))
 
     durations = soup.find_all("td", {"class": "chart__fees-desc"})
-    data["highDuration"] = parse_btc_duration(durations[0].text)
-    data["avgDuration"] = parse_btc_duration(durations[1].text)
-    data["lowDuration"] = parse_btc_duration(durations[2].text)
+    data["highDuration"] = _parse_btc_duration(durations[0].text)
+    data["avgDuration"] = _parse_btc_duration(durations[1].text)
+    data["lowDuration"] = _parse_btc_duration(durations[2].text)
 
-    return json_to_df(data)
+    return _data_to_df(data)

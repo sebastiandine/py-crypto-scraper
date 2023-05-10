@@ -9,6 +9,8 @@ from util.bsc_util import scrape_bsc_gas
 from util.binance_api import symbol_info
 
 from time import sleep, time
+from dotenv import load_dotenv
+
 import sqlalchemy
 import os
 
@@ -20,6 +22,7 @@ driver = webdriver.Firefox(options=driver_options, service=geckodriver_service)
 driver.set_page_load_timeout(30)
 
 # setup database connection
+load_dotenv()
 db_protocol = os.getenv('DB_PROTOCOL')
 db_user = os.getenv('DB_USER')
 db_pw = os.getenv('DB_PW')
